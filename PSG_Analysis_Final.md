@@ -1,28 +1,113 @@
----
-title: "PSG_Analysis_Final"
-output: github_document
----
+PSG_Analysis_Final
+================
 
-## Statistical analysis for diabetes peer support group study 
+## Statistical analysis for diabetes peer support group study
 
-# 1.	Baseline characteristics of the study sample
+# 1. Baseline characteristics of the study sample
 
-```{r}
+``` r
 library(readxl)
 library(tableone)
 library(flextable)
 library(officer)
+```
+
+    ## 
+    ## Attaching package: 'officer'
+
+    ## The following object is masked from 'package:readxl':
+    ## 
+    ##     read_xlsx
+
+``` r
 library(dplyr)
+```
+
+    ## 
+    ## Attaching package: 'dplyr'
+
+    ## The following objects are masked from 'package:stats':
+    ## 
+    ##     filter, lag
+
+    ## The following objects are masked from 'package:base':
+    ## 
+    ##     intersect, setdiff, setequal, union
+
+``` r
 library(stringr)
 library(tidyr)
 library(lme4)
+```
+
+    ## Loading required package: Matrix
+
+    ## 
+    ## Attaching package: 'Matrix'
+
+    ## The following objects are masked from 'package:tidyr':
+    ## 
+    ##     expand, pack, unpack
+
+``` r
 library(lmerTest)    
+```
+
+    ## 
+    ## Attaching package: 'lmerTest'
+
+    ## The following object is masked from 'package:lme4':
+    ## 
+    ##     lmer
+
+    ## The following object is masked from 'package:stats':
+    ## 
+    ##     step
+
+``` r
 library(performance) 
 library(emmeans)
+```
+
+    ## Welcome to emmeans.
+    ## Caution: You lose important information if you filter this package's results.
+    ## See '? untidy'
+
+``` r
 library(ggplot2)
 library(writexl)
 psg_data<- read_excel("Clean.xlsx")
+```
 
+    ## New names:
+    ## • `In the last 3 months how much did you spend on Diabetes?Transport - Rs.` ->
+    ##   `In the last 3 months how much did you spend on Diabetes?Transport -
+    ##   Rs....72`
+    ## • `In the last 3 months how much did you spend on Diabetes?Loss of wages - Rs.`
+    ##   -> `In the last 3 months how much did you spend on Diabetes?Loss of wages -
+    ##   Rs....73`
+    ## • `In the last 3 months how much did you spend on Diabetes?Other cost - Rs.` ->
+    ##   `In the last 3 months how much did you spend on Diabetes?Other cost -
+    ##   Rs....74`
+    ## • `Were you hospitalized in the last 3 months ?` -> `Were you hospitalized in
+    ##   the last 3 months ?...75`
+    ## • `If yes, Reason for hospitalization` -> `If yes, Reason for
+    ##   hospitalization...76`
+    ## • `In the last 3 months how much did you spend on Diabetes?Transport - Rs.` ->
+    ##   `In the last 3 months how much did you spend on Diabetes?Transport -
+    ##   Rs....215`
+    ## • `In the last 3 months how much did you spend on Diabetes?Loss of wages - Rs.`
+    ##   -> `In the last 3 months how much did you spend on Diabetes?Loss of wages -
+    ##   Rs....216`
+    ## • `In the last 3 months how much did you spend on Diabetes?Other cost - Rs.` ->
+    ##   `In the last 3 months how much did you spend on Diabetes?Other cost -
+    ##   Rs....217`
+    ## • `Were you hospitalized in the last 3 months ?` -> `Were you hospitalized in
+    ##   the last 3 months ?...218`
+    ## • `If yes, Reason for hospitalization` -> `If yes, Reason for
+    ##   hospitalization...219`
+
+``` r
 # 2. Define variables for Table 1
 # List all variables to be included
 all_vars <- c("Age", "Gender", "Religion", "Caste", "Marital status", "Financial status")
@@ -39,7 +124,15 @@ table1_obj <- CreateTableOne(
   factorVars = cat_vars, 
   test = TRUE
 )
+```
 
+    ## Warning in ModuleReturnVarsExist(vars, data): The data frame does not have:
+    ## Marital status Financial status Dropped
+
+    ## Warning in ModuleReturnVarsExist(factorVars, data): The data frame does not
+    ## have: Marital status Financial status Dropped
+
+``` r
 # 4. Format the table into a matrix
 # test = TRUE includes the p-values; exact = FALSE ensures Chi-square is used.
 table1_matrix <- print(
@@ -96,9 +189,12 @@ print(doc, target = "Baseline_Characteristics_Table.docx")
 cat("Success! 'Baseline_Characteristics_Table.docx' has been created in your working directory.")
 ```
 
-#2.	Baseline Summary Diabetes Self Care Activities Scores and Diabetes Distress Scores
+    ## Success! 'Baseline_Characteristics_Table.docx' has been created in your working directory.
 
-```{r}
+\#2. Baseline Summary Diabetes Self Care Activities Scores and Diabetes
+Distress Scores
+
+``` r
 # 2. Define the continuous score variables for comparison
 score_vars <- c("sdsca0", "Diet0", "Exercise0", "Foot0", "Test0", "Med0", "Smoke0")
 
@@ -175,10 +271,11 @@ print(doc, target = "Scores_Comparison_Table.docx")
 cat("Success! 'Scores_Comparison_Table.docx' has been created in your working directory.")
 ```
 
-# 3.	Fidelity to the peer support and diabetes self management education interventions
+    ## Success! 'Scores_Comparison_Table.docx' has been created in your working directory.
 
-```{r}
+# 3. Fidelity to the peer support and diabetes self management education interventions
 
+``` r
 # ==========================================
 # 1. DATA IMPORT & CLEANING
 # ==========================================
@@ -230,7 +327,17 @@ processed_df <- psg_data %>%
     total_times_watched  = sum(c_across(all_of(video_viewed_cols)), na.rm = TRUE)
   ) %>%
   ungroup()
+```
 
+    ## Warning: There were 2 warnings in `mutate()`.
+    ## The first warning was:
+    ## ℹ In argument: `across(all_of(video_viewed_cols),
+    ##   ~as.numeric(as.character(.)))`.
+    ## Caused by warning:
+    ## ! NAs introduced by coercion
+    ## ℹ Run `dplyr::last_dplyr_warnings()` to see the 1 remaining warning.
+
+``` r
 # Extract group summaries for videos received (Proportion)
 summary_received <- processed_df %>%
   group_by(clean_group) %>%
@@ -329,13 +436,14 @@ doc <- read_docx() %>%
 # Save the file
 print(doc, target = "Fidelity_Analysis_Table.docx")
 cat("\nSuccess! 'Fidelity_Analysis_Table.docx' has been saved to your workspace.\n")
-
 ```
 
-# 4.	Effect of peer support on overall diabetes self management 
+    ## 
+    ## Success! 'Fidelity_Analysis_Table.docx' has been saved to your workspace.
 
-```{r}
+# 4. Effect of peer support on overall diabetes self management
 
+``` r
 group_var   <- "intervention/ control"
 cluster_var <- "PSG group number"
 
@@ -479,9 +587,12 @@ print(lmm_doc, target = "Linear_Mixed_Model_Output.docx")
 cat("\nSUCCESS! Singularity resolved. Check your directory for 'Linear_Mixed_Model_Output.docx'.\n")
 ```
 
-# 5.	Effect of peer support on diabetes self management – Intention to Treat versus Per Protocol Analysis
+    ## 
+    ## SUCCESS! Singularity resolved. Check your directory for 'Linear_Mixed_Model_Output.docx'.
 
-```{r}
+# 5. Effect of peer support on diabetes self management – Intention to Treat versus Per Protocol Analysis
+
+``` r
 group_var   <- "intervention/ control"
 cluster_var <- "PSG group number"
 ltfu_var    <- "LTFU"
@@ -634,9 +745,12 @@ print(doc_compare, target = "ITT_vs_PP_Comparison_Report.docx")
 cat("\nSUCCESS! Check your directory for 'ITT_vs_PP_Comparison_Report.docx'.\n")
 ```
 
-# 6.	Effect of peer support on diabetes self management – dose response relationship 
+    ## 
+    ## SUCCESS! Check your directory for 'ITT_vs_PP_Comparison_Report.docx'.
 
-```{r}
+# 6. Effect of peer support on diabetes self management – dose response relationship
+
+``` r
 group_var   <- "intervention/ control"
 cluster_var <- "PSG group number"
 dose_var    <- "Proportion of meetings"
@@ -804,9 +918,12 @@ print(lmm_doc, target = "LMM_Dose_Response_Comparison.docx")
 cat("\nDone! 'LMM_Dose_Response_Comparison.docx' has been successfully generated in your directory.\n")
 ```
 
-# 7.	Visualisation of effect of peer support on overall diabetes self management – trajectory plot
+    ## 
+    ## Done! 'LMM_Dose_Response_Comparison.docx' has been successfully generated in your directory.
 
-```{r}
+# 7. Visualisation of effect of peer support on overall diabetes self management – trajectory plot
+
+``` r
 psg_data <- psg_data %>%
   mutate(ParticipantID = row_number()) %>%
   filter(!is.na(.data[[group_var]]), !is.na(.data[[cluster_var]])) %>%
@@ -857,8 +974,19 @@ predicted_means <- emmeans::emmeans(
   at = list(Month = c(0, 3, 6, 9, 12, 15, 18, 21, 24))
 ) %>%
   as.data.frame()
+```
 
+    ## Note: D.f. calculations have been disabled because the number of observations exceeds 3000.
+    ## To enable adjustments, add the argument 'pbkrtest.limit = 3798' (or larger)
+    ## [or, globally, 'set emm_options(pbkrtest.limit = 3798)' or larger];
+    ## but be warned that this may result in large computation time and memory use.
 
+    ## Note: D.f. calculations have been disabled because the number of observations exceeds 3000.
+    ## To enable adjustments, add the argument 'lmerTest.limit = 3798' (or larger)
+    ## [or, globally, 'set emm_options(lmerTest.limit = 3798)' or larger];
+    ## but be warned that this may result in large computation time and memory use.
+
+``` r
 # ==========================================
 # 4. PLOT GENERATION VIA GGPLOT2
 # ==========================================
@@ -930,12 +1058,14 @@ ggsave(
 )
 
 cat("\nSuccess! 'SDSCA_Trajectory_Plot.png' has been saved as a 300 DPI high-resolution image.\n")
-
 ```
 
-# 8.	Effect of peer support groups on components of diabetes self management
+    ## 
+    ## Success! 'SDSCA_Trajectory_Plot.png' has been saved as a 300 DPI high-resolution image.
 
-```{r}
+# 8. Effect of peer support groups on components of diabetes self management
+
+``` r
 group_var   <- "intervention/ control"
 cluster_var <- "PSG group number"
 
@@ -1037,8 +1167,16 @@ for (i in 1:length(domains)) {
   # Store current iteration dataframe to global compilation list
   compiled_models_list[[current_domain]] <- domain_final_df
 }
+```
 
+    ## Processing Mixed Model for Domain: Diet ...
+    ## Processing Mixed Model for Domain: Exercise ...
+    ## Processing Mixed Model for Domain: Foot care ...
+    ## Processing Mixed Model for Domain: Blood testing ...
+    ## Processing Mixed Model for Domain: Medication adherence ...
+    ## Processing Mixed Model for Domain: Non smoking ...
 
+``` r
 # ==========================================
 # 3. SIDE-BY-SIDE MATRIX COMPILATION
 # ==========================================
@@ -1101,12 +1239,14 @@ doc_master <- read_docx() %>%
 print(doc_master, target = "Comprehensive_LMM_6_Domains_Report.docx")
 
 cat("\nSUCCESS! Check your workspace for 'Comprehensive_LMM_6_Domains_Report.docx' (Landscape Oriented Document).\n")
-
-
 ```
-# 9.	Visualisation of effect of diabetes peer support on components of diabetes self management behaviours 
 
-```{r}
+    ## 
+    ## SUCCESS! Check your workspace for 'Comprehensive_LMM_6_Domains_Report.docx' (Landscape Oriented Document).
+
+# 9. Visualisation of effect of diabetes peer support on components of diabetes self management behaviours
+
+``` r
 group_var   <- "intervention/ control"
 cluster_var <- "PSG group number"
 
@@ -1188,7 +1328,69 @@ for (current_domain in domains) {
   means_df$Behavior <- current_domain
   predicted_means_list[[current_domain]] <- means_df
 }
+```
 
+    ## Note: D.f. calculations have been disabled because the number of observations exceeds 3000.
+    ## To enable adjustments, add the argument 'pbkrtest.limit = 3357' (or larger)
+    ## [or, globally, 'set emm_options(pbkrtest.limit = 3357)' or larger];
+    ## but be warned that this may result in large computation time and memory use.
+
+    ## Note: D.f. calculations have been disabled because the number of observations exceeds 3000.
+    ## To enable adjustments, add the argument 'lmerTest.limit = 3357' (or larger)
+    ## [or, globally, 'set emm_options(lmerTest.limit = 3357)' or larger];
+    ## but be warned that this may result in large computation time and memory use.
+
+    ## Note: D.f. calculations have been disabled because the number of observations exceeds 3000.
+    ## To enable adjustments, add the argument 'pbkrtest.limit = 3798' (or larger)
+    ## [or, globally, 'set emm_options(pbkrtest.limit = 3798)' or larger];
+    ## but be warned that this may result in large computation time and memory use.
+
+    ## Note: D.f. calculations have been disabled because the number of observations exceeds 3000.
+    ## To enable adjustments, add the argument 'lmerTest.limit = 3798' (or larger)
+    ## [or, globally, 'set emm_options(lmerTest.limit = 3798)' or larger];
+    ## but be warned that this may result in large computation time and memory use.
+
+    ## Note: D.f. calculations have been disabled because the number of observations exceeds 3000.
+    ## To enable adjustments, add the argument 'pbkrtest.limit = 3798' (or larger)
+    ## [or, globally, 'set emm_options(pbkrtest.limit = 3798)' or larger];
+    ## but be warned that this may result in large computation time and memory use.
+
+    ## Note: D.f. calculations have been disabled because the number of observations exceeds 3000.
+    ## To enable adjustments, add the argument 'lmerTest.limit = 3798' (or larger)
+    ## [or, globally, 'set emm_options(lmerTest.limit = 3798)' or larger];
+    ## but be warned that this may result in large computation time and memory use.
+
+    ## Note: D.f. calculations have been disabled because the number of observations exceeds 3000.
+    ## To enable adjustments, add the argument 'pbkrtest.limit = 3798' (or larger)
+    ## [or, globally, 'set emm_options(pbkrtest.limit = 3798)' or larger];
+    ## but be warned that this may result in large computation time and memory use.
+
+    ## Note: D.f. calculations have been disabled because the number of observations exceeds 3000.
+    ## To enable adjustments, add the argument 'lmerTest.limit = 3798' (or larger)
+    ## [or, globally, 'set emm_options(lmerTest.limit = 3798)' or larger];
+    ## but be warned that this may result in large computation time and memory use.
+
+    ## Note: D.f. calculations have been disabled because the number of observations exceeds 3000.
+    ## To enable adjustments, add the argument 'pbkrtest.limit = 3798' (or larger)
+    ## [or, globally, 'set emm_options(pbkrtest.limit = 3798)' or larger];
+    ## but be warned that this may result in large computation time and memory use.
+
+    ## Note: D.f. calculations have been disabled because the number of observations exceeds 3000.
+    ## To enable adjustments, add the argument 'lmerTest.limit = 3798' (or larger)
+    ## [or, globally, 'set emm_options(lmerTest.limit = 3798)' or larger];
+    ## but be warned that this may result in large computation time and memory use.
+
+    ## Note: D.f. calculations have been disabled because the number of observations exceeds 3000.
+    ## To enable adjustments, add the argument 'pbkrtest.limit = 3434' (or larger)
+    ## [or, globally, 'set emm_options(pbkrtest.limit = 3434)' or larger];
+    ## but be warned that this may result in large computation time and memory use.
+
+    ## Note: D.f. calculations have been disabled because the number of observations exceeds 3000.
+    ## To enable adjustments, add the argument 'lmerTest.limit = 3434' (or larger)
+    ## [or, globally, 'set emm_options(lmerTest.limit = 3434)' or larger];
+    ## but be warned that this may result in large computation time and memory use.
+
+``` r
 # Merge all predicted values together
 master_predicted_means <- bind_rows(predicted_means_list)
 
@@ -1271,12 +1473,14 @@ ggsave(
 )
 
 cat("\nSuccess! 'Faceted_Behavioral_Trajectories.png' has been saved as an ultra-high resolution image.\n")
-
 ```
 
-# 10.	Effect of peer support on diabetes distress 
+    ## 
+    ## Success! 'Faceted_Behavioral_Trajectories.png' has been saved as an ultra-high resolution image.
 
-```{r}
+# 10. Effect of peer support on diabetes distress
+
+``` r
 group_var   <- "intervention/ control"
 cluster_var <- "PSG group number"
 
@@ -1429,9 +1633,12 @@ print(doc_dds, target = "DDS_Linear_Mixed_Model_Report.docx")
 cat("\nDone! Check your workspace directory for 'DDS_Linear_Mixed_Model_Report.docx'.\n")
 ```
 
-# 11.	Visualisation of effect of diabetes peer support groups on diabetes distress
+    ## 
+    ## Done! Check your workspace directory for 'DDS_Linear_Mixed_Model_Report.docx'.
 
-```{r}
+# 11. Visualisation of effect of diabetes peer support groups on diabetes distress
+
+``` r
 group_var   <- "intervention/ control"
 cluster_var <- "PSG group number"
 
@@ -1483,8 +1690,19 @@ predicted_means <- emmeans::emmeans(
   ~ Group | Month, 
   at = list(Month = c(0, 3, 6, 9, 12, 15, 18, 21, 24))
 ) %>% as.data.frame()
+```
 
+    ## Note: D.f. calculations have been disabled because the number of observations exceeds 3000.
+    ## To enable adjustments, add the argument 'pbkrtest.limit = 3798' (or larger)
+    ## [or, globally, 'set emm_options(pbkrtest.limit = 3798)' or larger];
+    ## but be warned that this may result in large computation time and memory use.
 
+    ## Note: D.f. calculations have been disabled because the number of observations exceeds 3000.
+    ## To enable adjustments, add the argument 'lmerTest.limit = 3798' (or larger)
+    ## [or, globally, 'set emm_options(lmerTest.limit = 3798)' or larger];
+    ## but be warned that this may result in large computation time and memory use.
+
+``` r
 # ==========================================
 # 3. GENERATE THE LONGITUDINAL TRAJECTORY PLOT
 # ==========================================
@@ -1558,18 +1776,56 @@ ggsave(
 cat("\nSuccess! High-resolution 'DDS_Longitudinal_Trajectories.png' generated and saved.\n")
 ```
 
-# 12.	Effect of peer support on clinical parameters
+    ## 
+    ## Success! High-resolution 'DDS_Longitudinal_Trajectories.png' generated and saved.
 
-```{r}
+# 12. Effect of peer support on clinical parameters
 
+``` r
 # ==========================================
 # 0. CLEAR ACTIVE ENVIRONMENT AND CACHE
 # ==========================================
 rm(list = ls(all.names = TRUE)) 
 gc()                            
+```
 
+    ##           used  (Mb) gc trigger  (Mb) limit (Mb) max used  (Mb)
+    ## Ncells 3378095 180.5    5610454 299.7         NA  5610454 299.7
+    ## Vcells 6036701  46.1   23342079 178.1      16384 23342078 178.1
+
+``` r
 psg_data <- read_excel("Clean.xlsx") 
+```
 
+    ## New names:
+    ## • `In the last 3 months how much did you spend on Diabetes?Transport - Rs.` ->
+    ##   `In the last 3 months how much did you spend on Diabetes?Transport -
+    ##   Rs....72`
+    ## • `In the last 3 months how much did you spend on Diabetes?Loss of wages - Rs.`
+    ##   -> `In the last 3 months how much did you spend on Diabetes?Loss of wages -
+    ##   Rs....73`
+    ## • `In the last 3 months how much did you spend on Diabetes?Other cost - Rs.` ->
+    ##   `In the last 3 months how much did you spend on Diabetes?Other cost -
+    ##   Rs....74`
+    ## • `Were you hospitalized in the last 3 months ?` -> `Were you hospitalized in
+    ##   the last 3 months ?...75`
+    ## • `If yes, Reason for hospitalization` -> `If yes, Reason for
+    ##   hospitalization...76`
+    ## • `In the last 3 months how much did you spend on Diabetes?Transport - Rs.` ->
+    ##   `In the last 3 months how much did you spend on Diabetes?Transport -
+    ##   Rs....215`
+    ## • `In the last 3 months how much did you spend on Diabetes?Loss of wages - Rs.`
+    ##   -> `In the last 3 months how much did you spend on Diabetes?Loss of wages -
+    ##   Rs....216`
+    ## • `In the last 3 months how much did you spend on Diabetes?Other cost - Rs.` ->
+    ##   `In the last 3 months how much did you spend on Diabetes?Other cost -
+    ##   Rs....217`
+    ## • `Were you hospitalized in the last 3 months ?` -> `Were you hospitalized in
+    ##   the last 3 months ?...218`
+    ## • `If yes, Reason for hospitalization` -> `If yes, Reason for
+    ##   hospitalization...219`
+
+``` r
 group_var   <- "intervention/ control"
 cluster_var <- "PSG group number"
 
@@ -1623,14 +1879,25 @@ psg_data <- psg_data %>%
     RBS0_clean      = as.numeric(as.character(.data[[rbs0_name]])),
     Wt0_clean       = as.numeric(as.character(.data[[wt0_name]]))
   )
+```
 
+    ## Warning: There was 1 warning in `mutate()`.
+    ## ℹ In argument: `RBS0_clean = as.numeric(as.character(.data[["RBS 0"]]))`.
+    ## Caused by warning:
+    ## ! NAs introduced by coercion
+
+``` r
 # Verify that the strict Age filter successfully extracted a numeric vector
 if (all(is.na(psg_data$Age_clean))) {
   stop("CRITICAL STOP: The selected Age column is still pulling text values. Please check column headers.")
 }
 
 cat("Successfully mapped numerical Age column to source name:", age_name, "\n")
+```
 
+    ## Successfully mapped numerical Age column to source name: Age
+
+``` r
 # Define outcomes for the model loop
 outcomes <- c("Systolic BP", "Diastolic BP", "Random Blood Glucose", "Weight")
 
@@ -1745,8 +2012,25 @@ for (current_outcome in outcomes) {
   outcome_final_df <- rbind(coef_formatted, fit_summary_rows)
   compiled_outputs_list[[current_outcome]] <- outcome_final_df
 }
+```
 
+    ## Running mixed model for Systolic BP using columns: SBP 1, SBP 2 ...
 
+    ## Warning in FUN(X[[i]], ...): NAs introduced by coercion
+
+    ## Running mixed model for Diastolic BP using columns: DBP 1, DBP 2 ...
+
+    ## Warning in FUN(X[[i]], ...): NAs introduced by coercion
+
+    ## Running mixed model for Random Blood Glucose using columns: RBS 1, RBS 2 ...
+
+    ## Warning in FUN(X[[i]], ...): NAs introduced by coercion
+
+    ## Warning in FUN(X[[i]], ...): NAs introduced by coercion
+
+    ## ⚠️ Warning: Could not find tracking columns for: Weight . Skipping.
+
+``` r
 # ==========================================
 # 3. SIDE-BY-SIDE MATRIX COMPILATION
 # ==========================================
@@ -1795,25 +2079,62 @@ doc_clinical <- doc_clinical %>%
 
 print(doc_clinical, target = "Clinical_Outcomes_LMM_Report.docx")
 cat("\nProcess complete! Check your directory for 'Clinical_Outcomes_LMM_Report.docx'.\n")
-
 ```
 
-# 13.	Effect of peer support on weight
+    ## 
+    ## Process complete! Check your directory for 'Clinical_Outcomes_LMM_Report.docx'.
 
-```{r}
+# 13. Effect of peer support on weight
+
+``` r
 # ==========================================
 # 0. CLEAR ACTIVE ENVIRONMENT AND CACHE
 # ==========================================
 rm(list = ls(all.names = TRUE)) 
 gc()                            
+```
 
+    ##           used  (Mb) gc trigger  (Mb) limit (Mb) max used  (Mb)
+    ## Ncells 3380540 180.6    5610454 299.7         NA  5610454 299.7
+    ## Vcells 6043504  46.2   23342079 178.1      16384 23342078 178.1
 
+``` r
 # ==========================================
 # 1. DATA IMPORT & RIGOROUS DATA-TYPE CLEANING
 # ==========================================
 # Reads your dataset from the working directory
 psg_data <- read_excel("Clean.xlsx") 
+```
 
+    ## New names:
+    ## • `In the last 3 months how much did you spend on Diabetes?Transport - Rs.` ->
+    ##   `In the last 3 months how much did you spend on Diabetes?Transport -
+    ##   Rs....72`
+    ## • `In the last 3 months how much did you spend on Diabetes?Loss of wages - Rs.`
+    ##   -> `In the last 3 months how much did you spend on Diabetes?Loss of wages -
+    ##   Rs....73`
+    ## • `In the last 3 months how much did you spend on Diabetes?Other cost - Rs.` ->
+    ##   `In the last 3 months how much did you spend on Diabetes?Other cost -
+    ##   Rs....74`
+    ## • `Were you hospitalized in the last 3 months ?` -> `Were you hospitalized in
+    ##   the last 3 months ?...75`
+    ## • `If yes, Reason for hospitalization` -> `If yes, Reason for
+    ##   hospitalization...76`
+    ## • `In the last 3 months how much did you spend on Diabetes?Transport - Rs.` ->
+    ##   `In the last 3 months how much did you spend on Diabetes?Transport -
+    ##   Rs....215`
+    ## • `In the last 3 months how much did you spend on Diabetes?Loss of wages - Rs.`
+    ##   -> `In the last 3 months how much did you spend on Diabetes?Loss of wages -
+    ##   Rs....216`
+    ## • `In the last 3 months how much did you spend on Diabetes?Other cost - Rs.` ->
+    ##   `In the last 3 months how much did you spend on Diabetes?Other cost -
+    ##   Rs....217`
+    ## • `Were you hospitalized in the last 3 months ?` -> `Were you hospitalized in
+    ##   the last 3 months ?...218`
+    ## • `If yes, Reason for hospitalization` -> `If yes, Reason for
+    ##   hospitalization...219`
+
+``` r
 group_var   <- "intervention/ control"
 cluster_var <- "PSG group number"
 
@@ -1867,7 +2188,11 @@ if (all(is.na(psg_data$Age_clean))) {
 }
 
 cat("Successfully mapped numerical Age column to source name:", age_name, "\n")
+```
 
+    ## Successfully mapped numerical Age column to source name: Age
+
+``` r
 # Define outcomes and covariates for the model
 current_outcome <- "Weight"
 internal_covariates <- c("Age_clean", "Gender_clean", "Religion_clean", "Caste_clean", 
@@ -1881,7 +2206,11 @@ if(length(time_cols) == 0) {
 }
 
 cat("Running mixed model for Weight using columns:", paste(time_cols, collapse=", "), "... \n")
+```
 
+    ## Running mixed model for Weight using columns: Wt1, Wt2, Wt3, Wt4 ...
+
+``` r
 # DATA TYPE SAFEGUARD: Coerce follow-up columns to numeric to clear character vs double pivot conflicts
 loop_data_wide <- psg_data
 loop_data_wide[time_cols] <- lapply(loop_data_wide[time_cols], function(x) as.numeric(as.character(x)))
@@ -1916,7 +2245,11 @@ model_fit <- lmer(
                       Marital_clean + Financial_clean + (1 | ClusterID), 
   data = loop_long, REML = FALSE
 )
+```
 
+    ## boundary (singular) fit: see help('isSingular')
+
+``` r
 # Extract Coefficients Matrix
 coef_matrix <- as.data.frame(summary(model_fit)$coefficients)
 coef_matrix$Parameter <- rownames(coef_matrix)
@@ -1995,10 +2328,12 @@ print(doc_weight, target = "Weight_LMM_Report.docx")
 cat("\nProcess complete! 'Weight_LMM_Report.docx' has been successfully created in your directory.\n")
 ```
 
-# 14.	Visualisation of effect of peer support on clinical parameters
+    ## 
+    ## Process complete! 'Weight_LMM_Report.docx' has been successfully created in your directory.
 
-```{r}
+# 14. Visualisation of effect of peer support on clinical parameters
 
+``` r
 # Standardize headers and remove white spaces/backtick artifacts
 names(psg_data) <- trimws(names(psg_data))
 names(psg_data) <- gsub("`|'", "", names(psg_data)) 
@@ -2040,7 +2375,15 @@ for (i in 1:length(biomarkers)) {
   
   long_chunks_list[[current_bio]] <- bio_long
 }
+```
 
+    ## Warning in FUN(X[[i]], ...): NAs introduced by coercion
+    ## Warning in FUN(X[[i]], ...): NAs introduced by coercion
+    ## Warning in FUN(X[[i]], ...): NAs introduced by coercion
+    ## Warning in FUN(X[[i]], ...): NAs introduced by coercion
+    ## Warning in FUN(X[[i]], ...): NAs introduced by coercion
+
+``` r
 # Bind all clinical parameters into a master data frame
 master_long_data <- bind_rows(long_chunks_list) %>% filter(!is.na(Value))
 
@@ -2067,7 +2410,39 @@ for (current_bio in biomarkers) {
   means_df$Biomarker <- current_bio
   predicted_means_list[[current_bio]] <- means_df
 }
+```
 
+    ## Note: D.f. calculations have been disabled because the number of observations exceeds 3000.
+    ## To enable adjustments, add the argument 'pbkrtest.limit = 9236' (or larger)
+    ## [or, globally, 'set emm_options(pbkrtest.limit = 9236)' or larger];
+    ## but be warned that this may result in large computation time and memory use.
+
+    ## Note: D.f. calculations have been disabled because the number of observations exceeds 3000.
+    ## To enable adjustments, add the argument 'lmerTest.limit = 9236' (or larger)
+    ## [or, globally, 'set emm_options(lmerTest.limit = 9236)' or larger];
+    ## but be warned that this may result in large computation time and memory use.
+
+    ## Note: D.f. calculations have been disabled because the number of observations exceeds 3000.
+    ## To enable adjustments, add the argument 'pbkrtest.limit = 9237' (or larger)
+    ## [or, globally, 'set emm_options(pbkrtest.limit = 9237)' or larger];
+    ## but be warned that this may result in large computation time and memory use.
+
+    ## Note: D.f. calculations have been disabled because the number of observations exceeds 3000.
+    ## To enable adjustments, add the argument 'lmerTest.limit = 9237' (or larger)
+    ## [or, globally, 'set emm_options(lmerTest.limit = 9237)' or larger];
+    ## but be warned that this may result in large computation time and memory use.
+
+    ## Note: D.f. calculations have been disabled because the number of observations exceeds 3000.
+    ## To enable adjustments, add the argument 'pbkrtest.limit = 9233' (or larger)
+    ## [or, globally, 'set emm_options(pbkrtest.limit = 9233)' or larger];
+    ## but be warned that this may result in large computation time and memory use.
+
+    ## Note: D.f. calculations have been disabled because the number of observations exceeds 3000.
+    ## To enable adjustments, add the argument 'lmerTest.limit = 9233' (or larger)
+    ## [or, globally, 'set emm_options(lmerTest.limit = 9233)' or larger];
+    ## but be warned that this may result in large computation time and memory use.
+
+``` r
 master_predicted_means <- bind_rows(predicted_means_list)
 
 # ==========================================
@@ -2132,12 +2507,14 @@ ggsave(
 )
 
 cat("\nSuccess! 'Peer_Support_Clinical_Trajectories.png' has been saved to your workspace layout.\n")
-
 ```
+
+    ## 
+    ## Success! 'Peer_Support_Clinical_Trajectories.png' has been saved to your workspace layout.
+
 # 15. Trajectory plot for weight
 
-```{r}
-
+``` r
 group_var   <- "intervention/ control"
 cluster_var <- "PSG group number"
 
@@ -2258,25 +2635,62 @@ ggsave(
 )
 
 cat("\nSuccess! High-resolution 'Weight_Longitudinal_Trajectories.png' generated and saved.\n")
-
 ```
 
-# 16. HbA1c comparison 
+    ## 
+    ## Success! High-resolution 'Weight_Longitudinal_Trajectories.png' generated and saved.
 
-```{r}
+# 16. HbA1c comparison
+
+``` r
 # ==========================================
 # 0. CLEAR ACTIVE ENVIRONMENT AND CACHE
 # ==========================================
 rm(list = ls(all.names = TRUE)) 
 gc()                            
+```
 
+    ##           used  (Mb) gc trigger  (Mb) limit (Mb) max used  (Mb)
+    ## Ncells 3414825 182.4    5610454 299.7         NA  5610454 299.7
+    ## Vcells 6081470  46.4   23342079 178.1      16384 23342078 178.1
 
+``` r
 # ==========================================
 # 1. DATA IMPORT & RIGOROUS DATA-TYPE CLEANING
 # ==========================================
 # Reads your dataset from the working directory
 psg_data <- read_excel("Clean.xlsx") 
+```
 
+    ## New names:
+    ## • `In the last 3 months how much did you spend on Diabetes?Transport - Rs.` ->
+    ##   `In the last 3 months how much did you spend on Diabetes?Transport -
+    ##   Rs....72`
+    ## • `In the last 3 months how much did you spend on Diabetes?Loss of wages - Rs.`
+    ##   -> `In the last 3 months how much did you spend on Diabetes?Loss of wages -
+    ##   Rs....73`
+    ## • `In the last 3 months how much did you spend on Diabetes?Other cost - Rs.` ->
+    ##   `In the last 3 months how much did you spend on Diabetes?Other cost -
+    ##   Rs....74`
+    ## • `Were you hospitalized in the last 3 months ?` -> `Were you hospitalized in
+    ##   the last 3 months ?...75`
+    ## • `If yes, Reason for hospitalization` -> `If yes, Reason for
+    ##   hospitalization...76`
+    ## • `In the last 3 months how much did you spend on Diabetes?Transport - Rs.` ->
+    ##   `In the last 3 months how much did you spend on Diabetes?Transport -
+    ##   Rs....215`
+    ## • `In the last 3 months how much did you spend on Diabetes?Loss of wages - Rs.`
+    ##   -> `In the last 3 months how much did you spend on Diabetes?Loss of wages -
+    ##   Rs....216`
+    ## • `In the last 3 months how much did you spend on Diabetes?Other cost - Rs.` ->
+    ##   `In the last 3 months how much did you spend on Diabetes?Other cost -
+    ##   Rs....217`
+    ## • `Were you hospitalized in the last 3 months ?` -> `Were you hospitalized in
+    ##   the last 3 months ?...218`
+    ## • `If yes, Reason for hospitalization` -> `If yes, Reason for
+    ##   hospitalization...219`
+
+``` r
 group_var   <- "intervention/ control"
 cluster_var <- "PSG group number"
 
@@ -2324,7 +2738,16 @@ psg_data <- psg_data %>%
     HbA1c_1_clean   = as.numeric(as.character(.data[[hba1c_1_name]]))
   ) %>%
   filter(!is.na(HbA1c_0_clean), !is.na(HbA1c_1_clean))
+```
 
+    ## Warning: There were 2 warnings in `mutate()`.
+    ## The first warning was:
+    ## ℹ In argument: `HbA1c_0_clean = as.numeric(as.character(.data[["hba1c 0"]]))`.
+    ## Caused by warning:
+    ## ! NAs introduced by coercion
+    ## ℹ Run `dplyr::last_dplyr_warnings()` to see the 1 remaining warning.
+
+``` r
 # Standardize system matrix formula handles
 names(psg_data)[names(psg_data) == "clean_group"] <- "Group"
 names(psg_data)[names(psg_data) == cluster_var]  <- "ClusterID"
@@ -2334,14 +2757,22 @@ names(psg_data)[names(psg_data) == cluster_var]  <- "ClusterID"
 # ==========================================
 # A. Unconditional Null Model
 null_model <- lmer(HbA1c_1_clean ~ 1 + (1 | ClusterID), data = psg_data, REML = FALSE)
+```
 
+    ## boundary (singular) fit: see help('isSingular')
+
+``` r
 # B. Adjusted Mixed ANCOVA Model
 ancova_model <- lmer(
   HbA1c_1_clean ~ Group + HbA1c_0_clean + Age_clean + Gender_clean + 
                   Religion_clean + Caste_clean + Marital_clean + Financial_clean + (1 | ClusterID),
   data = psg_data, REML = FALSE
 )
+```
 
+    ## boundary (singular) fit: see help('isSingular')
+
+``` r
 # Extract Coefficients Summaries
 coef_matrix <- as.data.frame(summary(ancova_model)$coefficients)
 coef_matrix$Parameter <- rownames(coef_matrix)
@@ -2425,7 +2856,11 @@ print(doc_hba1c, target = "HbA1c_ANCOVA_Mixed_Model_Report.docx")
 # ==========================================
 # Extract adjusted post-hoc means using emmeans for your visualization layer
 adj_means_hba1c <- as.data.frame(emmeans::emmeans(ancova_model, ~ Group))
+```
 
+    ## boundary (singular) fit: see help('isSingular')
+
+``` r
 # We also pull baseline averages directly to structure the Pre-Post Trajectory Line Plot
 base_means <- psg_data %>% group_by(Group) %>% summarize(m = mean(HbA1c_0_clean, na.rm=TRUE))
 
@@ -2470,3 +2905,5 @@ ggsave("HbA1c_Longitudinal_Trajectories.png", plot = hba1c_trajectory_plot, widt
 cat("\nAll operations successfully completed!\n")
 ```
 
+    ## 
+    ## All operations successfully completed!
